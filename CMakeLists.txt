@@ -29,8 +29,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/imgdisplay.cpp src/imgdisplay.ui include/imgdisplay.h
         include/trayhandler.h src/trayhandler.cpp
+        include/imgdisplay.h src/imgdisplay.cpp
         resources/resources.qrc
 )
 

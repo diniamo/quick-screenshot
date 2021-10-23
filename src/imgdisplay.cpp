@@ -1,15 +1,6 @@
-#include "./include/imgdisplay.h"
-#include "./ui_imgdisplay.h"
+#include "include/imgdisplay.h"
 
-ImgDisplay::ImgDisplay(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::ImgDisplay)
+ImgDisplay::ImgDisplay(QWidget *parent) : QWidget(parent)
 {
-    ui->setupUi(this);
-}
 
-ImgDisplay::~ImgDisplay()
-{
-    delete ui;
 }
-

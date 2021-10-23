@@ -4,7 +4,7 @@
 #include <QScreen>
 #include <QApplication>
 
-TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent)
+TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent) : QObject(parent)
 {
     QMenu *trayMenu = new QMenu();
 
@@ -39,7 +39,10 @@ QMenu* TrayHandler::updateMonitors(QMenu *menu)
 
     for(QScreen *screen : screens)
     {
-        menu->addAction(screen->name());
+        QAction *action = new QAction(screen->name());
+        action->setCheckable(true);
+
+        menu->addAction(action);
     }
 
     return menu;
