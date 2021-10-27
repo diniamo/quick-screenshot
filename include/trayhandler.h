@@ -3,7 +3,12 @@
 
 #include "imgdisplay.h"
 #include <QObject>
-#include <QSystemTrayIcon>
+
+class QSystemTrayIcon;
+class QActionGroup;
+class QMenu;
+class QAction;
+class QLabel;
 
 class TrayHandler : public QObject
 {
@@ -13,11 +18,24 @@ public:
     ~TrayHandler();
 
 private:
-    static QMenu* updateMonitors(QMenu *);
+    static inline QMenu* updateMonitors(QMenu *, QActionGroup * = nullptr, unsigned int = 0);
 
     QSystemTrayIcon *d_tray;
 
+    QMenu *d_screenshotMonitorMenu;
+    QMenu *d_displayMonitorMenu;
+    QActionGroup *d_screenshotMonitorGroup;
+    QActionGroup *d_displayMonitorGroup;
+    QAction *d_previewMonitors;
+
+
+    QLabel *d_screenshotPreview;
+    QLabel *d_displayPreview;
+
 private slots:
+    void previewMonitorsClicked();
+    void hidePreviews();
+
     void exitClicked();
 };
 

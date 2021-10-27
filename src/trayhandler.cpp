@@ -1,28 +1,52 @@
 #include "include/trayhandler.h"
 #include <QMenu>
 #include <QGuiApplication>
+#include <QMessageBox>
 #include <QScreen>
 #include <QApplication>
+#include <QSystemTrayIcon>
+#include <QActionGroup>
+#include <QAction>
+#include <QLabel>
+#include <QTimer>
 
 TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent) : QObject(parent)
 {
-    QMenu *trayMenu = new QMenu();
+    QFont font = QApplication::font();
+    font.setPixelSize(48);
 
-    QMenu *screenshotMonitorMenu = new QMenu();
-    screenshotMonitorMenu->setTitle("Screenshot Monitor");
-    QMenu *displayMonitorMenu = new QMenu();
-    displayMonitorMenu->setTitle("Display Monitor");
+    d_screenshotPreview = new QLabel("Screenshot\nMonitor");
+    d_displayPreview = new QLabel("Display\nMonitor");
+    d_screenshotPreview->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    d_displayPreview->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    d_screenshotPreview->setStyleSheet("background-color: rgb(17, 17, 17); color: white");
+    d_displayPreview->setStyleSheet("background-color: rgb(17, 17, 17); color: white");
+    d_screenshotPreview->setAlignment(Qt::AlignCenter);
+    d_displayPreview->setAlignment(Qt::AlignCenter);
+    d_screenshotPreview->setFont(font);
+    d_displayPreview->setFont(font);
 
-    trayMenu->addMenu(updateMonitors(screenshotMonitorMenu));
-    trayMenu->addMenu(updateMonitors(displayMonitorMenu));
-    trayMenu->addAction("Preview Monitors");
+    d_tray = new QSystemTrayIcon(QIcon(":/icon.ico"), this);
+    d_tray->setToolTip("Quick screenshot tool with insta-display");
+    QMenu *trayMenu = new QMenu;
+
+
+    d_screenshotMonitorMenu = new QMenu("Screenshot Monitor");
+    d_displayMonitorMenu = new QMenu("Display Monitor");
+    d_screenshotMonitorGroup = new QActionGroup(d_tray);
+    d_displayMonitorGroup = new QActionGroup(d_tray);
+    d_screenshotMonitorGroup->setExclusive(true);
+    d_displayMonitorGroup->setExclusive(true);
+
+    trayMenu->addMenu(updateMonitors(d_screenshotMonitorMenu, d_screenshotMonitorGroup, 0));
+    trayMenu->addMenu(updateMonitors(d_displayMonitorMenu, d_displayMonitorGroup, 1));
+    d_previewMonitors = trayMenu->addAction("Preview Monitors", this, SLOT(previewMonitorsClicked()));
 
     trayMenu->addSeparator();
 
     trayMenu->addAction("Exit", this, SLOT(exitClicked()));
 
-    d_tray = new QSystemTrayIcon(QIcon(":/icon.ico"));
-    d_tray->setToolTip("Quick screenshot tool with insta-display");
+
     d_tray->setContextMenu(trayMenu);
     d_tray->show();
 }
@@ -30,18 +54,66 @@ TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent) : QObject(parent)
 TrayHandler::~TrayHandler()
 {
     delete d_tray;
+    delete d_screenshotPreview;
+    delete d_displayPreview;
 }
 
-QMenu* TrayHandler::updateMonitors(QMenu *menu)
+void TrayHandler::previewMonitorsClicked()
 {
-    auto screens = QGuiApplication::screens();
-    menu->clear();
+    QList<QScreen *> const &screens = QGuiApplication::screens();
+
+    QAction *ssChecked = d_screenshotMonitorGroup->checkedAction();
+    QAction *dpChecked = d_displayMonitorGroup->checkedAction();
 
     for(QScreen *screen : screens)
     {
-        QAction *action = new QAction(screen->name());
-        action->setCheckable(true);
+        QString const &name = screen->name();
+        QRect const &geometry = screen->geometry();
+        if(name == ssChecked->text())
+        {
+            d_screenshotPreview->setGeometry(screen->geometry().topLeft().x() + 50, geometry.bottomLeft().y() - 300 - 50, 300, 300);
+            d_screenshotPreview->setScreen(screen);
+            d_screenshotPreview->show();
+        } else if(name == dpChecked->text())
+        {
+            d_displayPreview->setGeometry(screen->geometry().topLeft().x() + 50, geometry.bottomLeft().y() - 300 - 50, 300, 300);
+            d_displayPreview->setScreen(screen);
+            d_displayPreview->show();
+        }
+    }
 
+    QTimer::singleShot(3000, this, SLOT(hidePreviews()));
+}
+
+void TrayHandler::hidePreviews()
+{
+    d_screenshotPreview->hide();
+    d_displayPreview->hide();
+}
+
+QMenu* TrayHandler::updateMonitors(QMenu *menu, QActionGroup *group, unsigned int defaultSelect)
+{
+    QList<QScreen *> const &screens = QGuiApplication::screens();
+
+    if(screens.length() < 2)
+    {
+        QMessageBox box("Not enough monitors",
+                        "There aren't enough monitors connected to your computer right now. This program requires at least 2 to function correctly.",
+                        QMessageBox::Icon::Critical, QMessageBox::Button::Close, 0, 0);
+
+        box.exec();
+        QApplication::quit();
+    }
+
+    menu->clear();
+
+    for(unsigned int i = 0; i < screens.length(); i++)
+    {
+        QAction *action = new QAction(screens[i]->name());
+        action->setCheckable(true);
+        if(i == defaultSelect) action->setChecked(true);
+
+        if(group != nullptr) group->addAction(action);
         menu->addAction(action);
     }
 
