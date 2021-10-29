@@ -12,7 +12,7 @@ I used **QT Creator** (version 5.0.2) with **QT6** (6.2.1) and **MinGW 8.1.0 64b
 - Download the mentioned software using the Qt Maintenance Tool.
 - Open the project in Qt creator, add the MinGW 8.1.0 64bit kit.
 - You can build either the release or the debug version, the only difference being is that the debug version has a console when the program is ran, and the other one does not. (Though there aren't many debug messages, so it's probably best to use the release build)
-- Run `winqtdeploy.exe` on the exe for it to work on everyone's computer.
+- Run MinGW's `windeployqt.exe` on the exe for it to work on everyone's computer.
 
 # Known bugs
 - The hotkey cannot include print screen because of a bug in qt/the library I use. (as mentioned above)
