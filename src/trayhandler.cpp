@@ -10,7 +10,7 @@
 #include <QLabel>
 #include <QTimer>
 
-TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent) : QObject(parent)
+TrayHandler::TrayHandler(QObject *parent) : QObject(parent)
 {
     QFont font = QApplication::font();
     font.setPixelSize(48);
@@ -30,6 +30,10 @@ TrayHandler::TrayHandler(ImgDisplay &imd, QObject *parent) : QObject(parent)
     d_tray->setToolTip("Quick screenshot tool with insta-display");
     QMenu *trayMenu = new QMenu;
 
+
+    trayMenu->addAction("Set hotkey", this, [this](){ emit setHotkeyClicked(); });
+
+    trayMenu->addSeparator();
 
     d_screenshotMonitorMenu = new QMenu("Screenshot Monitor");
     d_displayMonitorMenu = new QMenu("Display Monitor");
@@ -97,9 +101,9 @@ QMenu* TrayHandler::updateMonitors(QMenu *menu, QActionGroup *group, unsigned in
 
     if(screens.length() < 2)
     {
-        QMessageBox box("Not enough monitors",
+        QMessageBox box(QMessageBox::Icon::Critical, "Not enough monitors",
                         "There aren't enough monitors connected to your computer right now. This program requires at least 2 to function correctly.",
-                        QMessageBox::Icon::Critical, QMessageBox::Button::Close, 0, 0);
+                        QMessageBox::Close);
 
         box.exec();
         QApplication::quit();
@@ -119,6 +123,29 @@ QMenu* TrayHandler::updateMonitors(QMenu *menu, QActionGroup *group, unsigned in
 
     return menu;
 }
+
+QScreen *TrayHandler::screenshotScreen()
+{
+    QString name = d_screenshotMonitorGroup->checkedAction()->text();
+    for(auto screen : QGuiApplication::screens())
+    {
+        if(name == screen->name()) return screen;
+    }
+
+    return nullptr;
+}
+
+QScreen *TrayHandler::displayScreen()
+{
+    QString name = d_displayMonitorGroup->checkedAction()->text();
+    for(auto screen : QGuiApplication::screens())
+    {
+        if(name == screen->name()) return screen;
+    }
+
+    return nullptr;
+}
+
 
 void TrayHandler::exitClicked()
 {

@@ -1,9 +1,9 @@
 #ifndef TRAYHANDLER_H
 #define TRAYHANDLER_H
 
-#include "imgdisplay.h"
 #include <QObject>
 
+class QScreen;
 class QSystemTrayIcon;
 class QActionGroup;
 class QMenu;
@@ -14,11 +14,14 @@ class TrayHandler : public QObject
 {
     Q_OBJECT
 public:
-    TrayHandler(ImgDisplay &, QObject *parent = nullptr);
+    explicit TrayHandler(QObject * = nullptr);
     ~TrayHandler();
 
+    QScreen *screenshotScreen();
+    QScreen *displayScreen();
+
 private:
-    static inline QMenu* updateMonitors(QMenu *, QActionGroup * = nullptr, unsigned int = 0);
+    static QMenu* updateMonitors(QMenu *, QActionGroup * = nullptr, unsigned int = 0);
 
     QSystemTrayIcon *d_tray;
 
@@ -37,6 +40,9 @@ private slots:
     void hidePreviews();
 
     void exitClicked();
+
+signals:
+    void setHotkeyClicked();
 };
 
 #endif // TRAYHANDLER_H
