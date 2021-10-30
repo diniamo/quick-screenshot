@@ -16,3 +16,6 @@ I used **QT Creator** (version 5.0.2) with **QT6** (6.2.1) and **MinGW 8.1.0 64b
 
 # Known bugs
 - The hotkey cannot include print screen because of a bug in qt/the library I use. (as mentioned above)
+- Doesn't work for games yet (that's basically what I made it for lol)
+
+I'm gonna try a different library in hopes of fixing both of these issues.
