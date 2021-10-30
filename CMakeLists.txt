@@ -57,18 +57,21 @@ set(PROJECT_SOURCES
         include/hotkeydialog.h src/hotkeydialog.cpp src/hotkeydialog.ui
         resources/resources.qrc
 )
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/resources/QuickScreenshot.rc")
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     if(IS_DEBUG)
         qt_add_executable(QuickScreenshot
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
+            ${APP_ICON_RESOURCE_WINDOWS}
         )
     else()
         qt_add_executable(QuickScreenshot
             WIN32
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
+            ${APP_ICON_RESOURCE_WINDOWS}
         )
     endif()
 else()
@@ -77,16 +80,10 @@ else()
             ${PROJECT_SOURCES}
         )
     else()
-        if(IS_DEBUG)
-            add_executable(QuickScreenshot
-                WIN32
-                ${PROJECT_SOURCES}
-            )
-        else()
-            add_executable(QuickScreenshot
-                ${PROJECT_SOURCES}
-            )
-        endif()
+        add_executable(QuickScreenshot
+            ${PROJECT_SOURCES}
+            ${APP_ICON_RESOURCE_WINDOWS}
+        )
     endif()
 endif()
 
