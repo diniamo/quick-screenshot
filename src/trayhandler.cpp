@@ -31,9 +31,9 @@ TrayHandler::TrayHandler(QObject *parent) : QObject(parent)
     QMenu *trayMenu = new QMenu;
 
 
-    trayMenu->addAction("Set hotkey", this, [this](){ emit setHotkeyClicked(); });
+    //trayMenu->addAction("Set hotkey", this, [this](){ emit setHotkeyClicked(); });
 
-    trayMenu->addSeparator();
+    //trayMenu->addSeparator();
 
     d_screenshotMonitorMenu = new QMenu("Screenshot Monitor");
     d_displayMonitorMenu = new QMenu("Display Monitor");
