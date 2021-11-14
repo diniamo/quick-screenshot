@@ -31,24 +31,11 @@ message("Is Debug: ${IS_DEBUG}")
 #    endif()
 #endif()
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Multimedia REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
-#set(QT_MAJOR 6)
-#set(QT_MAJOR 6 CACHE STRING "Use Qt6")
-#set(QT_MAJOR ${QT_VERSION_MAJOR})
-
-#find_library(QHOTKEY_LIBRARY NAMES qhotkey1 QHotkey1 HINTS "${CMAKE_PREFIX}/lib")
-#message(${QHOTKEY_LIBRARY})
-
-include(FetchContent)
-set(QT_DEFAULT_MAJOR_VERSION 6)
-option(QHOTKEY_INSTALL OFF)
-FetchContent_Declare(QHotkey
-    GIT_REPOSITORY https://github.com/Skycoder42/QHotkey
-    GIT_TAG 1.5.0
-)
-FetchContent_MakeAvailable(QHotkey)
+find_library(UIOHOOK_LIBRARY NAMES uiohook HINTS "E:/Documents/programming/cpp/lib/libuiohook/build")
+message(${UIOHOOK_LIBRARY})
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -87,7 +74,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(QuickScreenshot PRIVATE Qt${QT_VERSION_MAJOR}::Widgets QHotkey::QHotkey)
+target_link_libraries(QuickScreenshot PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${UIOHOOK_LIBRARY})
 
 set_target_properties(QuickScreenshot PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

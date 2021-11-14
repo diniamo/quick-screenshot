@@ -2,7 +2,6 @@
 #include "include/trayhandler.h"
 #include "include/hotkeydialog.h"
 
-#include <QHotkey>
 #include <QLabel>
 #include <QScreen>
 #include <QPixmap>
@@ -12,39 +11,35 @@ HotkeyHandler::HotkeyHandler(TrayHandler *th, QObject *parent) : QObject(parent)
 {
     d_hotkeyDialog = new HotkeyDialog();
 
-    d_hotkey = new QHotkey(d_hotkeyDialog->newSequence(), true, this);
-    qDebug() << "Is registered:" << d_hotkey->isRegistered();
-    connect(d_hotkey, &QHotkey::activated, this, &HotkeyHandler::printCaught);
-
-    connect(d_trayHandler, &TrayHandler::setHotkeyClicked, this, &HotkeyHandler::setHotkeyClicked);
-
     d_displayLabel = new QLabel();
     d_displayLabel->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 }
 
 HotkeyHandler::~HotkeyHandler()
 {
-    delete d_hotkey;
     delete d_hotkeyDialog;
+    delete d_displayLabel;
 }
 
-void HotkeyHandler::printCaught()
+void HotkeyHandler::eventDispatch(uiohook_event * const event)
+
 {
-    qDebug() << "Hotkey caught";
+    if(event->type == EVENT_KEY_PRESSED && event->data.keyboard.keycode == VC_PRINTSCREEN)
+    {
+        QScreen *screenshotScreen = d_trayHandler->screenshotScreen();
+        QRect const &ssGeom = screenshotScreen->geometry();
+        QPixmap screenshot = screenshotScreen->grabWindow(0, ssGeom.x(), ssGeom.y(), ssGeom.width(), ssGeom.height());
 
-    QScreen *screenshotScreen = d_trayHandler->screenshotScreen();
-    QRect const &ssGeom = screenshotScreen->geometry();
-    QPixmap screenshot = screenshotScreen->grabWindow(0, ssGeom.x(), ssGeom.y(), ssGeom.width(), ssGeom.height());
+        QScreen *displayScreen = d_trayHandler->displayScreen();
 
-    QScreen *displayScreen = d_trayHandler->displayScreen();
-
-    d_displayLabel->setGeometry(displayScreen->geometry());
-    d_displayLabel->setPixmap(screenshot);
-    d_displayLabel->showFullScreen();
+        d_displayLabel->setGeometry(displayScreen->geometry());
+        d_displayLabel->setPixmap(screenshot);
+        d_displayLabel->showFullScreen();
+    }
 }
 
 void HotkeyHandler::setHotkeyClicked()
 {
-    d_hotkey->setRegistered(false);
-    d_hotkey->setShortcut(d_hotkeyDialog->newSequence(), true);
+    //d_hotkey->setRegistered(false);
+    //d_hotkey->setShortcut(d_hotkeyDialog->newSequence(), true);
 }

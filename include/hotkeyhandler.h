@@ -2,10 +2,10 @@
 #define HOTKEYHANDLER_H
 
 #include <QObject>
+#include <uiohook.h>
 
 class TrayHandler;
 class HotkeyDialog;
-class QHotkey;
 class QLabel;
 
 class HotkeyHandler : public QObject
@@ -15,15 +15,15 @@ public:
     explicit HotkeyHandler(TrayHandler *, QObject * = nullptr);
     ~HotkeyHandler();
 
+    void eventDispatch(uiohook_event * const);
+
 private:
     TrayHandler *d_trayHandler;
     HotkeyDialog *d_hotkeyDialog;
 
-    QHotkey *d_hotkey;
     QLabel *d_displayLabel;
 
 private slots:
-    void printCaught();
     void setHotkeyClicked();
 
 };
